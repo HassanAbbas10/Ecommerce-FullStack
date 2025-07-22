@@ -8,62 +8,36 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Search, Edit, Trash2, Eye } from "lucide-react"
+import { useEffect } from "react"
+import { axiosInstance } from "@/services/api/api"
 
-const initialProducts = [
-  {
-    id: 1,
-    name: "Wireless Headphones",
-    category: "Electronics",
-    price: 99.99,
-    stock: 45,
-    status: "Active",
-    image: "/placeholder.svg?height=50&width=50",
-  },
-  {
-    id: 2,
-    name: "Cotton T-Shirt",
-    category: "Clothing",
-    price: 24.99,
-    stock: 120,
-    status: "Active",
-    image: "/placeholder.svg?height=50&width=50",
-  },
-  {
-    id: 3,
-    name: "Coffee Maker",
-    category: "Home & Garden",
-    price: 149.99,
-    stock: 8,
-    status: "Low Stock",
-    image: "/placeholder.svg?height=50&width=50",
-  },
-  {
-    id: 4,
-    name: "Running Shoes",
-    category: "Sports",
-    price: 79.99,
-    stock: 0,
-    status: "Out of Stock",
-    image: "/placeholder.svg?height=50&width=50",
-  },
-  {
-    id: 5,
-    name: "Smartphone Case",
-    category: "Electronics",
-    price: 19.99,
-    stock: 200,
-    status: "Active",
-    image: "/placeholder.svg?height=50&width=50",
-  },
-]
+
 
 export default function Products() {
-  const [products, setProducts] = useState(initialProducts)
+  const [products, setProducts] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
+
+
+  useEffect (()=>{
+
+    const fetchProducts = async()=>{
+      try {
+        const res = await axiosInstance.get("/products/")
+        setProducts(res.data.data)
+        console.log(res.data.data)
+      } catch (error) {
+        console.log(error.message,"Failed while fetching the products");
+      }
+    }
+
+    fetchProducts()
+  },[])
+
+
+
   const filteredProducts = products.filter(
     (product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase()),
+      product.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const getStatusBadge = (status) => {
@@ -130,7 +104,7 @@ export default function Products() {
             </TableHeader>
             <TableBody>
               {filteredProducts.map((product) => (
-                <TableRow key={product.id} className="border-gray-200">
+                <TableRow key={product._id} className="border-gray-200">
                   <TableCell className="font-medium">
                     <div className="flex items-center space-x-3">
                       <img
@@ -142,15 +116,15 @@ export default function Products() {
                     </div>
                   </TableCell>
                   <TableCell className="text-gray-600">{product.category}</TableCell>
-                  <TableCell className="text-black font-medium">${product.price}</TableCell>
-                  <TableCell className="text-gray-600">{product.stock}</TableCell>
+                  <TableCell className="text-black font-medium">PKR {product.price}</TableCell>
+                  <TableCell className="text-gray-600">{product.quantity}</TableCell>
                   <TableCell>{getStatusBadge(product.status)}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <Button variant="ghost" size="sm" className="text-gray-600 hover:text-black">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Link to={`/update-product/${product.id}`}>
+                      <Link to={`/update-product/${product._id}`}>
                         <Button variant="ghost" size="sm" className="text-gray-600 hover:text-black">
                           <Edit className="h-4 w-4" />
                         </Button>

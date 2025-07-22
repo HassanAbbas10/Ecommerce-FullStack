@@ -41,7 +41,15 @@ export const productSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
+
+productSchema.virtual("status").get(function () {
+  if (this.quantity === 0) return "Out of Stock";
+  if (this.quantity < 10) return "Low in Stock";
+  return "In Stock";
+});
 
 export const Product = mongoose.model("Product", productSchema);

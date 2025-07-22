@@ -1,0 +1,7 @@
+{
+    "editor.fontFamily": "Fira Code Retina",
+    "editor.fontSize": 14,
+    "files.autoSave": "afterDelay",
+    "editor.formatOnSave": true,
+    "workbench.colorTheme": "Catppuccin Frappé"
+}
