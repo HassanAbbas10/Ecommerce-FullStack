@@ -1,71 +1,100 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Plus, Search, Edit, Trash2, Eye } from "lucide-react"
-import { useEffect } from "react"
-import { axiosInstance } from "@/services/api/api"
-
-
+import { useState,useCallback } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Search, Edit, Trash2} from "lucide-react";
+import { useEffect } from "react";
+import { axiosInstance } from "@/services/api/api";
+import { useLocation } from "react-router-dom";
 
 export default function Products() {
-  const [products, setProducts] = useState([])
-  const [searchTerm, setSearchTerm] = useState("")
+  const [products, setProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation();
 
+// 1. Define fetchProducts outside useEffect so it can be reused
+const fetchProducts = useCallback(async () => {
+  try {
+    const res = await axiosInstance.get("/products/");
+    setProducts(res.data.data);
+    console.log(res.data.data);
+  } catch (error) {
+    console.log(error.message, "Failed while fetching the products");
+  }
+}, []);
 
-  useEffect (()=>{
+// 2. Call it initially on load
+useEffect(() => {
+  fetchProducts();
+}, [location, fetchProducts]);
 
-    const fetchProducts = async()=>{
+// 3. Call fetchProducts after deletion
+const deleteProduct = useCallback(
+  async (id) => {
+    if (confirm("Are you sure that you want to delete this product?")) {
       try {
-        const res = await axiosInstance.get("/products/")
-        setProducts(res.data.data)
-        console.log(res.data.data)
+        await axiosInstance.delete(`/products/${id}`);
+        console.log("Product has been successfully deleted");
+        fetchProducts(); // refresh the list
       } catch (error) {
-        console.log(error.message,"Failed while fetching the products");
+        console.log("Error occurred while deleting the product", error.message);
       }
     }
+  },
+  [fetchProducts]
+);
 
-    fetchProducts()
-  },[])
 
-
-
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getStatusBadge = (status) => {
     switch (status) {
       case "Active":
-        return <Badge className="bg-black text-white">Active</Badge>
+        return <Badge className="bg-black text-white">Active</Badge>;
       case "Low Stock":
         return (
           <Badge variant="outline" className="border-gray-400 text-gray-700">
             Low Stock
           </Badge>
-        )
+        );
       case "Out of Stock":
         return (
           <Badge variant="outline" className="border-red-400 text-red-700">
             Out of Stock
           </Badge>
-        )
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline">{status}</Badge>;
     }
-  }
+  };
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-black">Products</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-black">
+            Products
+          </h2>
           <p className="text-gray-600">Manage your product inventory</p>
         </div>
         <Link to="/add-product">
@@ -79,7 +108,9 @@ export default function Products() {
       <Card className="border-gray-200">
         <CardHeader>
           <CardTitle className="text-black">Product Inventory</CardTitle>
-          <CardDescription className="text-gray-600">View and manage all your products</CardDescription>
+          <CardDescription className="text-gray-600">
+            View and manage all your products
+          </CardDescription>
           <div className="flex items-center space-x-2">
             <Search className="h-4 w-4 text-gray-400" />
             <Input
@@ -108,28 +139,45 @@ export default function Products() {
                   <TableCell className="font-medium">
                     <div className="flex items-center space-x-3">
                       <img
-                        src={product.image || "/placeholder.svg?height=40&width=40"}
+                        src={
+                          product.image || "/placeholder.svg?height=40&width=40"
+                        }
                         alt={product.name}
                         className="w-10 h-10 rounded-md border border-gray-200"
                       />
                       <span className="text-black">{product.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-gray-600">{product.category}</TableCell>
-                  <TableCell className="text-black font-medium">PKR {product.price}</TableCell>
-                  <TableCell className="text-gray-600">{product.quantity}</TableCell>
+                  <TableCell className="text-gray-600">
+                    {product.category}
+                  </TableCell>
+                  <TableCell className="text-black font-medium">
+                    PKR {product.price}
+                  </TableCell>
+                  <TableCell className="text-gray-600">
+                    {product.quantity}
+                  </TableCell>
                   <TableCell>{getStatusBadge(product.status)}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm" className="text-gray-600 hover:text-black">
+                      {/* <Button variant="ghost" size="sm" className="text-gray-600 hover:text-black">
                         <Eye className="h-4 w-4" />
-                      </Button>
+                      </Button> */}
                       <Link to={`/update-product/${product._id}`}>
-                        <Button variant="ghost" size="sm" className="text-gray-600 hover:text-black">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-600 hover:text-black"
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                       </Link>
-                      <Button variant="ghost" size="sm" className="text-gray-600 hover:text-red-600">
+                      <Button
+                        onClick={()=>{deleteProduct(product._id)}}
+                        variant="ghost"
+                        size="sm"
+                        className="text-gray-600 hover:text-red-600"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -141,5 +189,5 @@ export default function Products() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
