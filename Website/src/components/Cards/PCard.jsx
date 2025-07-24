@@ -1,4 +1,4 @@
-import { useState, useEffect,useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import LottieAnimationSec from "../Lotte/LotteAnimationSec";
@@ -10,40 +10,38 @@ import { ToastContainer } from "react-toastify";
 const PCard = () => {
   const [products, setProducts] = useState([]);
 
-const fetchProducts = useCallback(async() =>{
-  try {
-    const res = await axiosInstance.get('/products/')
-    setProducts(res.data.data)
-    console.log(res.data.data);
-  } catch (error) {
-    console.log('Error while fetching the product',error.message)
-  }
+  const fetchProducts = useCallback(async () => {
+    try {
+      const res = await axiosInstance.get("/products/");
+      setProducts(res.data.data);
+      console.log(res.data.data);
+    } catch (error) {
+      console.log("Error while fetching the product", error.message);
+    }
+  }, []);
 
-},[])
-
-useEffect (
-  ()=>{
-    fetchProducts()
-  },[fetchProducts]
-)
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   return (
-      <div className="mt-8 px-4">
+    <div className="mt-8 px-4">
       <h1 className="text-3xl font-semibold text-center mb-8">Product</h1>
       <div className="container mx-auto">
         {Array.isArray(products) && products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  gap-8 mt-12 sm:mx-24">
             {products.map((cardData) => (
+              <Link to={`/products/${cardData.id}`} key={cardData.id}>
               <div
                 key={cardData.id}
-                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg duration-500 hover:shadow-slate-500 border-2 border-slate-200 shadow-slate-400 ring-opacity-40"
+                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg duration-500 hover:shadow-slate-300 border-2 border-slate-200 shadow-slate-400 ring-opacity-40"
               >
                 <div className="relative group">
-                  <div className="w-54 sm:p-4 py-[0.5rem] flex justify-center  border border-slate-500 items-center h-40 sm:h-52  overflow-hidden">
+                  <div className="relative w-full h-48 sm:h-52 p-2 border border-slate-300 rounded-lg overflow-hidden bg-gray-50">
                     <img
-                      className="object-cover w-full h-full border rounded-lg  "
+                      className="object-cover w-full h-full rounded-lg transition-transform duration-300 hover:scale-105"
                       src={cardData.image}
-                      alt="Product Image"
+                      alt={cardData.name || "Product Image"}
                     />
                   </div>
                   {/* <div className="absolute top-0 right-0 px-1 py-1 m-2 rounded-md ">
@@ -62,49 +60,59 @@ useEffect (
                     <AddShoppingCart color="black" size={24} />
                   </button>
                 </div>
-             <div className="p-3">
-  <div className="mb-3">
-    <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-2 hover:text-blue-600 transition-colors duration-200">
-      {cardData.name}
-    </h3>
-    <span className="inline-block px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-full">
-      {cardData.category}
-    </span>
-  </div>
-  
-  <p className="text-sm text-gray-600 mb-3 line-clamp-3 leading-relaxed">
-    {cardData.description}
-  </p>
+                <div className="p-3">
+                  <div className="mb-3">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-2 hover:text-blue-600 transition-colors duration-200">
+                      {cardData.name}
+                    </h3>
+                    <div className="flex justify-start items-center gap-4">
+                    <span className="inline-block px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-full">
+                      {cardData.category}
+                    </span>
+                     <span
+                      className={`font-medium text-xs mt-1 p-1 rounded-lg ${
+                        cardData.quantity > 0
+                          ? "bg-green-100 text-green-500"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {cardData.status ? "In Stock" : "Out of Stock"}
+                    </span>
+                    </div>
+                  </div>
 
-  <div className="flex flex-col items-start justify-start">
-    <div className="flex flex-row gap-5 items-start justify-start">
-      <span className="font-bold text-lg text-red-500">
-        ${cardData.price}
-      </span>
-      <span className={`font-medium text-xs p-1 rounded-lg ${cardData.quantity > 0 ? "bg-green-400 text-white" : 'text-red-400'}`}>
-        {cardData.status ? "In Stock" : "Out of Stock"}
-      </span>
-    </div>
-    
-    <div className="flex items-center">
-      {Array.from({ length: 5 }, (_, index) => (
-        <span
-          key={index}
-          className={`text-lg ${
-            index < Math.floor(cardData.rating)
-              ? "text-black"
-              : "text-gray-400"
-          }`}
-        >
-          ★
-        </span>
-      ))}
-      <p className="text-slate-500 pl-1">{cardData.rating}</p>
-    </div>
-  </div>
-  <ToastContainer />
-</div>
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-3 leading-relaxed">
+                    {cardData.description}
+                  </p>
+
+                  <div className="flex flex-col items-start justify-start">
+                    <div className="flex items-center">
+                      {Array.from({ length: 5 }, (_, index) => (
+                        <span
+                          key={index}
+                          className={`text-2xl ${
+                            index < Math.floor(cardData.rating)
+                              ? "text-yellow-400"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          ★
+                        </span>
+                      ))}
+                      <p className="text-slate-500 pl-1">{cardData.rating}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-row gap-5 items-start justify-start">
+                    <span className="font-medium text-xl text-black-500">
+                      Rs.{cardData.price}
+                    </span>
+                   
+                  </div>
+
+                  <ToastContainer />
+                </div>
               </div>
+              </Link>
             ))}
           </div>
         ) : (

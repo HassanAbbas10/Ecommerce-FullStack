@@ -9,10 +9,10 @@ export const productSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-    image: {
+    image:[{
       type: String,
       required: true,
-    },
+    }],
     description: {
       type: String,
       required: true,

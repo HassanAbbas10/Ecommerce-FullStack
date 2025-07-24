@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom"
 
 export default function AddProduct() {
   const [isLoading, setIsLoading] = useState(false)
-  const [imageFile, setImageFile] = useState(null)
+  const [imageFile, setImageFile] = useState([])
   const [imagePreview, setImagePreview] = useState("")
   const [product, setProduct] = useState({
     name: "",

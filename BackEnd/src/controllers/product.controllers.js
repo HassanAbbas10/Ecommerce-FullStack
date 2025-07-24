@@ -56,16 +56,26 @@ export const deleteProductById = async (req, res) => {
 export const addProducts = async (req, res) => {
   try {
 
-    const localFilePath = req.file?.path;
+    const localFilePaths = req.files;
 
-    if (!localFilePath) {
-      return res.status(400).json({ message: "Image file is required" });
+    if (!localFilePaths || localFilePaths.length === 0) {
+      return res.status(400).json({ message: "At least one image file is required" });
     }
 
-    const uploadResult = await uploadOnCloudinary(localFilePath);
 
-    if (!uploadResult?.secure_url) {
-      return res.status(500).json({ message: "Cloudinary upload failed" });
+    const uploadPromises = localFilePaths.map(file => uploadOnCloudinary(file.path));
+    const uploadResults = await Promise.all(uploadPromises);
+
+    const imageUrls = uploadResults
+      .filter(result => result?.secure_url)
+      .map(result => result.secure_url);
+
+    if (imageUrls.length === 0) {
+      return res.status(500).json({ message: "All Cloudinary uploads failed" });
+    }
+
+    if (imageUrls.length !== localFilePaths.length) {
+      console.warn(`Some image uploads failed. Expected: ${localFilePaths.length}, Successful: ${imageUrls.length}`);
     }
 
     const {
@@ -79,7 +89,7 @@ export const addProducts = async (req, res) => {
 
     const product = await Product.create({
       name,
-      image: uploadResult.secure_url,
+      images: imageUrls, 
       description,
       rating,
       price,
@@ -87,7 +97,7 @@ export const addProducts = async (req, res) => {
       category,
     });
 
-    res.status(201).json(product);
+    res.status(201).json(new ApiResponse(201, product, "Product created successfully"));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
