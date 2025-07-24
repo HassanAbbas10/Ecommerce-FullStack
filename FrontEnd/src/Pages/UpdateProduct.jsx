@@ -82,7 +82,7 @@ export default function UpdateProduct() {
     const file = e.target.files[0];
     if (file) {
       // Validate file type
-      const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+      const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif","image/webp"];
       if (!validTypes.includes(file.type)) {
         setError("Please select a valid image file (JPG, PNG, GIF)");
         return;

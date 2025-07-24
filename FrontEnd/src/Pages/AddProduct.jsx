@@ -28,7 +28,7 @@ export default function AddProduct() {
     const file = e.target.files[0]
     if (file) {
       // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif','image/webp']
       if (!allowedTypes.includes(file.type)) {
         alert('Please select a valid image file (JPEG, JPG, PNG, or GIF)')
         return
